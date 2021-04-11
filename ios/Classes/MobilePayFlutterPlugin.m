@@ -1,5 +1,5 @@
 #import "MobilePayFlutterPlugin.h"
-#import "MobilePayManager.h"
+#import <MobilePayManager/MobilePayManager.h>
 
 @implementation MobilePayFlutterPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
@@ -18,18 +18,18 @@
 
 - (MobilePayCountry)getCountry:(NSString*)country {
     if([@"fi" isEqualToString:country]) return MobilePayCountry_Finland;
-    if([@"no" isEqualToString:country]) return MobilePayCountry_Norway;
+    //if([@"no" isEqualToString:country]) return MobilePayCountry_Norway;
     if([@"dk" isEqualToString:country]) return MobilePayCountry_Denmark;
     return MobilePayCountry_Denmark;
 }
 
-- (void)sendError:(NSError * __nonnull)error forOrder:(NSString *)orderId {
+- (void)sendError:(MobilePayErrorPayment * __nonnull)error forOrder:(NSString *)orderId {
     [self->channel invokeMethod:@"mobilePayFailure"
                       arguments:
      @{@"orderId":orderId,
-       @"errorCode": @(error.code),
-       @"errorMessage": [NSString stringWithFormat:@"%@: %@",error.localizedFailureReason, error.localizedDescription],
-       @"errorRecoverySuggestion": error.localizedRecoverySuggestion
+       @"errorCode": @(error.error.code),
+       @"errorMessage": [NSString stringWithFormat:@"%@: %@",error.error.localizedFailureReason, error.error.localizedDescription],
+       @"errorRecoverySuggestion": error.error.localizedRecoverySuggestion
      }];
 }
 
@@ -45,16 +45,16 @@
     } else if([@"createPayment" isEqualToString:call.method]) {
         NSNumber *price = call.arguments[@"productPrice"];
         NSString *orderId = call.arguments[@"orderId"];
-        MobilePayPayment *payment = [[MobilePayPayment alloc]initWithOrderId:orderId productPrice:[price floatValue]];
+        MobilePayPayment *payment = [[MobilePayPayment alloc]initWithOrderId:orderId productPrice:[NSDecimalNumber decimalNumberWithDecimal:[price decimalValue]]];
         if (payment && (payment.orderId.length > 0) && (payment.productPrice >= 0)) {
             
-            [[MobilePayManager sharedInstance] beginMobilePaymentWithPayment:payment error:^(NSError * __nonnull error) {
+            [[MobilePayManager sharedInstance] beginMobilePaymentWithPayment:payment error:^(MobilePayErrorPayment * __nonnull error) {
                 [self sendError:error forOrder:orderId];
             }];
         }
         result(nil);
     } else if([@"downloadMobilePay" isEqualToString:call.method]) {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString: @"https://apps.apple.com/fi/app/mobilepay/id768172577"]];
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString: @"https://apps.apple.com/fi/app/mobilepay/id768172577"] options:@{} completionHandler:nil];
         result(nil);
     } else if([@"isMobilePayInstalled" isEqualToString:call.method]) {
         result(@(
@@ -90,7 +90,7 @@
     [[MobilePayManager sharedInstance]handleMobilePayPaymentWithUrl:url success:^(MobilePaySuccessfulPayment * _Nullable mobilePaySuccessfulPayment) {
         NSString *orderId = mobilePaySuccessfulPayment.orderId;
         NSString *transactionId = mobilePaySuccessfulPayment.transactionId;
-        float amountWithdrawnFromCard = mobilePaySuccessfulPayment.amountWithdrawnFromCard;
+        float amountWithdrawnFromCard = mobilePaySuccessfulPayment.amountWithdrawnFromCard.floatValue;
         
         [self->channel invokeMethod:@"mobilePaySuccess"
                           arguments:
@@ -99,7 +99,7 @@
            @"amountWithdrawnFromCard": @(amountWithdrawnFromCard)
          }];
         
-    } error:^(NSError * __nullable error) {
+    } error:^(MobilePayErrorPayment * __nullable error) {
         [self sendError:error forOrder:@""];
     } cancel:^(MobilePayCancelledPayment * _Nullable mobilePayCancelledPayment) {
         [self->channel invokeMethod:@"mobilePayCancel"
