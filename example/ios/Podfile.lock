@@ -1,0 +1,29 @@
+PODS:
+  - Flutter (1.0.0)
+  - mobile_pay_flutter (0.0.1):
+    - Flutter
+    - MobilePay-AppSwitch-SDK
+  - MobilePay-AppSwitch-SDK (1.8.1)
+
+DEPENDENCIES:
+  - Flutter (from `.symlinks/flutter/ios`)
+  - mobile_pay_flutter (from `.symlinks/plugins/mobile_pay_flutter/ios`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - MobilePay-AppSwitch-SDK
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: ".symlinks/flutter/ios"
+  mobile_pay_flutter:
+    :path: ".symlinks/plugins/mobile_pay_flutter/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  mobile_pay_flutter: f4a65eed2f7772525676fd3a6a437fd5e27d33cb
+  MobilePay-AppSwitch-SDK: 6ed36faad59e4cdd1bc8f8fde8f4a9f2d1e4cb2c
+
+PODFILE CHECKSUM: 10ae9c18d12c9ffc2275c9a159a3b1e281990db0
+
+COCOAPODS: 1.7.5

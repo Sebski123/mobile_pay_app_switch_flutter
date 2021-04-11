@@ -1,0 +1,23 @@
+name: mobile_pay_app_switch_flutter
+description: A Flutter plugin for MobilePay
+version: 0.0.2
+author: Sebastian Mason <sebthomle@gmail.com>
+author: Thomas De Bluts <thomas.debluts@gmail.com>
+homepage: https://developer.mobilepay.dk/appswitch-main
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    androidPackage: mobilepay.dk.mobile_pay_flutter
+    pluginClass: MobilePayFlutterPlugin
+
